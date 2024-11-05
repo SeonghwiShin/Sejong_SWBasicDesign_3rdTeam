@@ -1,8 +1,8 @@
-import java.awt.Graphics;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.Timer;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -87,6 +87,26 @@ public class TileManager {
     public void drawTiles(Graphics g) {
         for (Tile tile : tiles) {
             tile.draw(g); // 각 타일을 화면에 그립니다.
+        }
+    }
+
+    public static class GaragePanel extends JPanel {
+
+        public GaragePanel(CardLayout cardLayout, JPanel mainPanel) {
+            // 뒤로 가기 버튼
+            JButton backButton = new JButton("Back");
+            backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+            backButton.setMaximumSize(new Dimension(100, 30));
+            backButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    cardLayout.show(mainPanel, "MainMenu");
+                }
+            });
+            add(backButton);
+
+            // 하단 여백
+            add(Box.createVerticalStrut(20));
         }
     }
 }

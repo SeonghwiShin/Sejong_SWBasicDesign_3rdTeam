@@ -1,3 +1,6 @@
+import MainScreen.RhythmGameScreen;
+import MainScreen.StageSelectPanel;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -34,7 +37,7 @@ public class RhythmGame extends JFrame {
     }
 
     private JPanel createGaragePanel() {
-        return new GaragePanel(cardLayout, mainPanel);
+        return new TileManager.GaragePanel(cardLayout, mainPanel);
     }
 
     public static void main(String[] args) {

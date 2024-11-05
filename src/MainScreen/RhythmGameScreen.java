@@ -1,9 +1,10 @@
+package MainScreen;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 
 public class RhythmGameScreen extends JPanel {
     private static Image backgroundImage;
