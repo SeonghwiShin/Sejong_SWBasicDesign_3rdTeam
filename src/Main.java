@@ -4,7 +4,7 @@ import java.awt.event.ActionListener;
 
 public class Main extends JFrame {
     private int selectedStage;
-
+int a;
     public Main() {
         setTitle("타이틀");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
