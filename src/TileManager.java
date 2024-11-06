@@ -10,36 +10,70 @@ public class TileManager {
     private List<Tile> tiles;
     private int screenWidth;
     private int screenHeight;
-    private Timer timer;
+    private Timer timer;  // 타일 위치 업데이트 타이머
+    private Timer tileCreationTimer; // 타일 생성 타이머
     private Runnable repaintCallback;
-
-    // 타일 데이터 배열 (주파수, 생성 간격, 타일 길이)
-    private TileData[] tileDataArray = {
-            new TileData(532, 700, 40),
-            new TileData(405, 1000, 40),
-            new TileData(405, 700, 80),
-            new TileData(445, 700, 40),
-            new TileData(331, 1000, 40),
-            new TileData(331, 700, 80),
-            new TileData(266, 700, 40),
-            new TileData(331, 700, 40),
-            new TileData(405, 700, 40),
-            new TileData(445, 700, 40),
-            new TileData(532, 700, 40),
-            new TileData(532, 1000, 40),
-            new TileData(532, 700, 80),
-    };
-
     private int currentTileIndex = 0; // 현재 생성할 타일의 인덱스
     private final int speed = 8; // 타일의 속도 설정
     private final int initialYPosition = -50; // 타일의 초기 Y 위치 (화면 위에서 시작)
-    private Timer tileCreationTimer;
+    private String countdownText = ""; // 화면에 출력할 카운트다운 텍스트
+
+
+    /*
+    C2	140.0   C#2	159.8   D2	180.8   D#2	203.1   E2	226.6   F2	251.6   F#2	278.1
+    G2	306.1   G#2	335.8   A2	367.3   A#2	400.6   B2	435.9
+    C3	473.4   C#3	513.0   D3	555.0   D#3	599.5   E3	646.6   F3	696.6   F#3	749.5
+    G3	805.6   G#3	864.9   A3	927.9   A#3	994.5   B3	1065.2  C4	1140.0
+    */
+    // 타일 데이터 배열 (주파수, 생성 간격, 타일 길이)
+    private TileData[] tileDataArray = {
+            new TileData(805.6, 700, 40),
+            new TileData(646.6, 1000, 40),
+            new TileData(646.6, 700, 80),
+            new TileData(696.6, 700, 40),
+            new TileData(555.0, 1000, 40),
+            new TileData(555.0, 700, 80),
+            new TileData(473.4, 700, 40),
+            new TileData(555.0, 700, 40),
+            new TileData(646.6, 700, 40),
+            new TileData(696.6, 700, 40),
+            new TileData(805.6, 700, 40),
+            new TileData(805.6, 1000, 40),
+            new TileData(805.6, 700, 80),
+    };
 
     public TileManager(int screenWidth, int screenHeight, Runnable repaintCallback) {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         this.repaintCallback = repaintCallback;
         tiles = new ArrayList<>();
+
+        // 1초 간격으로 카운트다운을 표시하는 타이머 설정
+        Timer countdownTimer = new Timer(1000, new ActionListener() {
+            int countdown = 5;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (countdown <= 3 && countdown > 0) { // countdown이 3, 2, 1일 때만 텍스트 설정
+                    countdownText = String.valueOf(countdown);
+                } else if (countdown == 0) {
+                    countdownText = "Start!";
+                } else {
+                    countdownText = ""; // 텍스트를 숨김 (countdown이 4나 5일 때)
+                }
+
+                if (countdown == -1) { // countdown이 끝나면 타이머 및 타일 생성 시작
+                    ((Timer) e.getSource()).stop(); // 카운트다운 타이머 중지
+                    timer.start(); // 타일 위치 업데이트 타이머 시작
+                    tileCreationTimer.start(); // 타일 생성 타이머 시작
+                }
+
+                repaintCallback.run(); // 화면을 다시 그리기 위해 호출
+                countdown--;
+            }
+        });
+        countdownTimer.setRepeats(true);
+        countdownTimer.start(); // 카운트다운 타이머 시작
 
         // 타일 생성 및 업데이트를 관리하는 타이머 설정
         timer = new Timer(33, new ActionListener() { // 33ms마다 업데이트 (약 30fps)
@@ -49,27 +83,24 @@ public class TileManager {
                 repaintCallback.run(); // 화면을 다시 그리기 위해 호출
             }
         });
-        timer.start();
 
         // 타일 생성용 별도 타이머 설정
         tileCreationTimer = new Timer(tileDataArray[currentTileIndex].getDelay(), new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (currentTileIndex < tileDataArray.length) {
-                    int x = (int) tileDataArray[currentTileIndex].getFrequency(); // 주파수를 x 좌표로 변환
-                    tiles.add(new Tile(x, initialYPosition, speed, tileDataArray[currentTileIndex].getLength())); // 새로운 타일을 리스트에 추가
-                    currentTileIndex++; // 다음 타일 인덱스 업데이트
+                    int x = (int) tileDataArray[currentTileIndex].getFrequency();
+                    tiles.add(new Tile(x, initialYPosition, speed, tileDataArray[currentTileIndex].getLength()));
+                    currentTileIndex++;
 
-                    // 다음 타일의 생성 간격을 설정
                     if (currentTileIndex < tileDataArray.length) {
-                        tileCreationTimer.setDelay(tileDataArray[currentTileIndex].getDelay()); // 다음 타일의 생성 간격 업데이트
+                        tileCreationTimer.setDelay(tileDataArray[currentTileIndex].getDelay());
                     } else {
-                        tileCreationTimer.stop(); // 모든 타일이 생성되면 타이머 중지
+                        tileCreationTimer.stop();
                     }
                 }
             }
         });
-        tileCreationTimer.start(); // 타일 생성 타이머 시작
     }
 
     private void manageTiles() {
@@ -88,25 +119,15 @@ public class TileManager {
         for (Tile tile : tiles) {
             tile.draw(g); // 각 타일을 화면에 그립니다.
         }
-    }
 
-    public static class GaragePanel extends JPanel {
-
-        public GaragePanel(CardLayout cardLayout, JPanel mainPanel) {
-            // 뒤로 가기 버튼
-            JButton backButton = new JButton("Back");
-            backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-            backButton.setMaximumSize(new Dimension(100, 30));
-            backButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    cardLayout.show(mainPanel, "MainMenu");
-                }
-            });
-            add(backButton);
-
-            // 하단 여백
-            add(Box.createVerticalStrut(20));
+        // 화면 중앙에 카운트다운 텍스트 그리기
+        if (!countdownText.isEmpty()) {
+            FontMetrics fm = g.getFontMetrics();
+            int textWidth = fm.stringWidth(countdownText);
+            int textHeight = fm.getAscent();
+            g.setFont(new Font("Arial", Font.BOLD, 60));
+            g.setColor(Color.RED);
+            g.drawString(countdownText, (screenWidth - textWidth) / 2, (screenHeight + textHeight) / 2);
         }
     }
 }

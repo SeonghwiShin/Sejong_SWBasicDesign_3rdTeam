@@ -1,3 +1,4 @@
+
 public class TileData {
     private double frequency; // 주파수 (x 좌표를 결정하는 데 사용)
     private int delay;        // 타일 생성 간격 (밀리초 단위)

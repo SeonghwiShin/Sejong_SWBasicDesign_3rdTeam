@@ -6,9 +6,10 @@ import java.util.Random;
 
 public class ClickMelody extends JPanel {
     // 시각적 선을 그리기 위한 상수들
-    private static final int LINE_Y = 400;         // 선의 Y 좌표
-    private static final int LINE_WIDTH = 800;     // 선의 너비
+    private static final int LINE_Y = 595;         // 선의 Y 좌표
+    private static final int LINE_WIDTH = 1000;     // 선의 너비
     private static final int LINE_HEIGHT = 10;     // 선의 높이
+    private static final int LINE_X = (1280 - LINE_WIDTH) / 2; // 선의 X 좌표 (중앙으로 조정)
 
     // 오디오 설정을 위한 상수들
     private static final int SAMPLE_RATE = 44100;  // 오디오 샘플링 레이트 (Hz)
@@ -60,7 +61,6 @@ public class ClickMelody extends JPanel {
         }
     }
 
-
     private void addMouseListeners() {
         // 마우스 클릭 및 해제 이벤트를 처리하기 위한 리스너 추가
         addMouseListener(new MouseAdapter() {
@@ -95,7 +95,7 @@ public class ClickMelody extends JPanel {
         // 주파수 범위를 계산 (C4_FREQ - C2_FREQ)
         double range = C4_FREQ - C2_FREQ;
         // 마우스 X 좌표를 선의 너비로 나누어 비율을 구하고, 이를 주파수 범위에 적용
-        currentFreq = C2_FREQ + (range * mouseX / LINE_WIDTH);
+        currentFreq = C2_FREQ + (range * (mouseX - LINE_X) / LINE_WIDTH);
     }
 
     private void startSound() {
@@ -147,7 +147,7 @@ public class ClickMelody extends JPanel {
 
         // 메인 선을 빨간색으로 그립니다.
         g.setColor(Color.RED);
-        g.fillRect(0, LINE_Y, LINE_WIDTH, LINE_HEIGHT);
+        g.fillRect(LINE_X, LINE_Y, LINE_WIDTH, LINE_HEIGHT); // X 좌표를 중앙으로 설정
 
         // 주파수 마커 및 레이블을 검은색으로 그립니다.
         g.setColor(Color.BLACK);
@@ -156,19 +156,11 @@ public class ClickMelody extends JPanel {
         // 모든 주파수에 대해 마커와 레이블을 그립니다.
         for (int i = 0; i < FREQUENCIES.length; i++) {
             // 주파수에 해당하는 X 좌표 계산
-            int x = (int) ((FREQUENCIES[i] - C2_FREQ) / range * LINE_WIDTH);
+            int x = LINE_X + (int) ((FREQUENCIES[i] - C2_FREQ) / range * LINE_WIDTH);
             // 주파수 마커 선 그리기
             g.drawLine(x, LINE_Y - 20, x, LINE_Y + LINE_HEIGHT + 20);
             // 주파수 레이블 그리기 (음표 이름)
             g.drawString(NOTES[i], x - 10, LINE_Y - 30);
         }
     }
-
-    /**
-     * 프로그램의 진입점입니다.
-     * JFrame을 생성하고 RhythmGame 패널을 추가하여 화면에 표시합니다.
-     *
-     * @param args 명령줄 인자 (사용되지 않음)
-     */
-
 }
