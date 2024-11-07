@@ -12,7 +12,9 @@ public class TileManager {
     private int screenHeight;
     private Timer timer;  // 타일 위치 업데이트 타이머
     private Timer tileCreationTimer; // 타일 생성 타이머
+    private int currentTile;
     private Runnable repaintCallback;
+    private int currentTime = -1000;
     private int currentTileIndex = 0; // 현재 생성할 타일의 인덱스
     private final int speed = 8; // 타일의 속도 설정
     private final int initialYPosition = -50; // 타일의 초기 Y 위치 (화면 위에서 시작)
@@ -25,22 +27,27 @@ public class TileManager {
     C3	473.4   C#3	513.0   D3	555.0   D#3	599.5   E3	646.6   F3	696.6   F#3	749.5
     G3	805.6   G#3	864.9   A3	927.9   A#3	994.5   B3	1065.2  C4	1140.0
     */
+    private int bpmData = 120;
     // 타일 데이터 배열 (주파수, 생성 간격, 타일 길이)
     private TileData[] tileDataArray = {
-            new TileData(805.6, 700, 40),
-            new TileData(646.6, 1000, 40),
-            new TileData(646.6, 700, 80),
-            new TileData(696.6, 700, 40),
-            new TileData(555.0, 1000, 40),
-            new TileData(555.0, 700, 80),
-            new TileData(473.4, 700, 40),
-            new TileData(555.0, 700, 40),
-            new TileData(646.6, 700, 40),
-            new TileData(696.6, 700, 40),
-            new TileData(805.6, 700, 40),
-            new TileData(805.6, 1000, 40),
-            new TileData(805.6, 700, 80),
+            new TileData(805.6, 0, 500),
+            new TileData(646.6, 1000, 500),
+            new TileData(646.6, 2000, 1000),
+            new TileData(696.6, 4000, 500),
+            new TileData(555.0, 5000, 500),
+            new TileData(555.0, 6000, 1000),
+            new TileData(473.4, 8000, 500),
+            new TileData(555.0, 9000, 500),
+            new TileData(646.6, 10000, 1000),
+            new TileData(696.6, 11500, 250),
+            new TileData(805.6, 12000, 500),
+            new TileData(805.6, 13000, 500),
+            new TileData(805.6, 14000, 1000),
     };
+
+    private int convertByBpm(int time) {
+        return time*60/bpmData;
+    }
 
     public TileManager(int screenWidth, int screenHeight, Runnable repaintCallback) {
         this.screenWidth = screenWidth;
@@ -79,22 +86,24 @@ public class TileManager {
         timer = new Timer(33, new ActionListener() { // 33ms마다 업데이트 (약 30fps)
             @Override
             public void actionPerformed(ActionEvent e) {
+                currentTime+=33;
                 manageTiles();
                 repaintCallback.run(); // 화면을 다시 그리기 위해 호출
             }
         });
 
         // 타일 생성용 별도 타이머 설정
-        tileCreationTimer = new Timer(tileDataArray[currentTileIndex].getDelay(), new ActionListener() {
+        tileCreationTimer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (currentTileIndex < tileDataArray.length) {
                     int x = (int) tileDataArray[currentTileIndex].getFrequency();
-                    tiles.add(new Tile(x, initialYPosition, speed, tileDataArray[currentTileIndex].getLength()));
+                    tiles.add(new Tile(x, initialYPosition, speed, convertByBpm(tileDataArray[currentTileIndex].getLength())*speed/33));
                     currentTileIndex++;
 
                     if (currentTileIndex < tileDataArray.length) {
-                        tileCreationTimer.setDelay(tileDataArray[currentTileIndex].getDelay());
+                        tileCreationTimer.setDelay(convertByBpm(tileDataArray[currentTileIndex].getTime()) - currentTime);
+                        System.out.println(convertByBpm(tileDataArray[currentTileIndex].getTime()) - currentTime);
                     } else {
                         tileCreationTimer.stop();
                     }

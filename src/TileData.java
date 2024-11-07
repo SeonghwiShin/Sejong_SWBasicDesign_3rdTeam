@@ -1,12 +1,12 @@
 
 public class TileData {
     private double frequency; // 주파수 (x 좌표를 결정하는 데 사용)
-    private int delay;        // 타일 생성 간격 (밀리초 단위)
+    private int time;        // 타일 생성 시간 (밀리초 단위)
     private int length;       // 타일 길이
 
-    public TileData(double frequency, int delay, int length) {
+    public TileData(double frequency, int time, int length) {
         this.frequency = frequency;
-        this.delay = delay;
+        this.time = time;
         this.length = length;
     }
 
@@ -14,8 +14,8 @@ public class TileData {
         return frequency;
     }
 
-    public int getDelay() {
-        return delay;
+    public int getTime() {
+        return time;
     }
 
     public int getLength() {
