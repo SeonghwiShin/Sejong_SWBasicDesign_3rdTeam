@@ -12,7 +12,6 @@ public class TileManager {
     private int screenHeight;
     private Timer timer;  // 타일 위치 업데이트 타이머
     private Timer tileCreationTimer; // 타일 생성 타이머
-    private int currentTile;
     private Runnable repaintCallback;
     private int currentTime = -1000;
     private int currentTileIndex = 0; // 현재 생성할 타일의 인덱스
@@ -28,7 +27,7 @@ public class TileManager {
     G3	805.6   G#3	864.9   A3	927.9   A#3	994.5   B3	1065.2  C4	1140.0
     */
     private int bpmData = 120;
-    // 타일 데이터 배열 (주파수, 생성 간격, 타일 길이)
+    // 타일 데이터 배열 (주파수, 생성되는 시간, 타일 길이를 도출하기 전 노트의 홀드 시간)
     private TileData[] tileDataArray = {
             new TileData(805.6, 0, 500),
             new TileData(646.6, 1000, 500),
@@ -93,12 +92,12 @@ public class TileManager {
         });
 
         // 타일 생성용 별도 타이머 설정
-        tileCreationTimer = new Timer(1000, new ActionListener() {
+        tileCreationTimer = new Timer(1000, new ActionListener() {  // 1초 초기 딜레이 세팅, 이 타이머가 발동되면 currentTime=0이 됨
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (currentTileIndex < tileDataArray.length) {
                     int x = (int) tileDataArray[currentTileIndex].getFrequency();
-                    tiles.add(new Tile(x, initialYPosition, speed, convertByBpm(tileDataArray[currentTileIndex].getLength())*speed/33));
+                    tiles.add(new Tile(x, initialYPosition, speed, convertByBpm(tileDataArray[currentTileIndex].getLength())*speed/33)); // 노트 생성
                     currentTileIndex++;
 
                     if (currentTileIndex < tileDataArray.length) {
