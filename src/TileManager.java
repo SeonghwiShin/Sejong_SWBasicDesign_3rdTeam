@@ -12,7 +12,6 @@ public class TileManager {
     private int screenHeight;
     private Timer timer;  // 타일 위치 업데이트 타이머
     private Timer tileCreationTimer; // 타일 생성 타이머
-    private int currentTile;
     private Runnable repaintCallback;
     private int currentTime = -1000;
     private int currentTileIndex = 0; // 현재 생성할 타일의 인덱스
